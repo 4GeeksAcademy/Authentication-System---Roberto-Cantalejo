@@ -20,3 +20,19 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+@api.route('/register', methods=['POST'])
+def register_user():
+    data = request.get_json()
+    if data is None:
+        return jsonify({"message": "Email and password are required"}), 400
+    new_user = User(
+        email=data['email'],
+        password=data['password'],
+    )
+
+    # Añade el usuario a la base de datos
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"message": "User registered successfully"}), 200
