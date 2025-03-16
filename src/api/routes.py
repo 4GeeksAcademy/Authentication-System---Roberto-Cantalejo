@@ -5,11 +5,10 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-import bcrypt
-from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity, JWTManager
 
 api = Blueprint('api', __name__)
-
 # Allow CORS requests to this API
 CORS(api)
 
@@ -30,6 +29,8 @@ def register_user():
         return jsonify({"message": "Email and password are required"}), 400
     email = data['email']
     password = data['password']
+    if User.query.filter_by(email=email).first():
+        return jsonify({"message": "User already exists"}), 400
     bytes = password.encode('utf-8') # Convertimos la contraseña en un array de bytes.
     salt = bcrypt.gensalt() # Generamos la sal
     hashed_password = bcrypt.hashpw(bytes, salt) # Sacamos la contraseña ya hasheada.
